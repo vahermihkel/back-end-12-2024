@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 //import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 public class ProductController {
     @Autowired
@@ -62,8 +64,37 @@ public class ProductController {
     // Patch - ühe kindla välja muutmine
     @PatchMapping("change-stock")
     public List<Product> changeStock(@RequestBody Product changedProduct) {
-        if (productRepository.findById(changedProduct.getName()).isPresent()) {
-            productRepository.save(changedProduct);
+                                            // võtan andmebaasist primaatvõtme alusel
+        Product product = productRepository.findById(changedProduct.getName()).orElseThrow();
+        product.setStock(changedProduct.getStock());
+        productRepository.save(product);
+
+//        Optional<Product> productOptional = productRepository.findById(changedProduct.getName());
+//        if (productOptional.isPresent()) {
+//            Product product = productOptional.get();
+//            product.setStock(changedProduct.getStock());
+//            productRepository.save(product);
+//        }
+        return productRepository.findAll();
+    }
+
+    // localhost:8080/increase-stock?name=Coca
+    @PatchMapping("increase-stock")
+    public List<Product> increaseStock(@RequestParam String name) {
+        Product product = productRepository.findById(name).orElseThrow();
+        product.setStock(product.getStock() + 1);
+        productRepository.save(product);
+        return productRepository.findAll();
+    }
+
+    // localhost:8080/decrease-stock?name=Coca
+    @PatchMapping("decrease-stock")
+    public List<Product> decreaseStock(@RequestParam String name) {
+        Product product = productRepository.findById(name).orElseThrow();
+        if (product.getStock() > 0) {
+            product.setStock(product.getStock() - 1);
+            productRepository.save(product);
+            // TODO: Viska exception kui on 0
         }
         return productRepository.findAll();
     }
