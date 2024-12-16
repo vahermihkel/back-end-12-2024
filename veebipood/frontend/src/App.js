@@ -23,7 +23,7 @@ function App() {
         <Route path="lisa-toode" element={<LisaToode />} />
         <Route path="halda-tooteid" element={<HaldaTooteid />} />
         <Route path="halda-kategooriaid" element={<HaldaKategooriaid />} />
-        <Route path="muuda-toode" element={<MuudaToode />} />
+        <Route path="muuda-toode/:name" element={<MuudaToode />} />
         <Route path="*" element={<div>404 - sellist URLi pole</div>} />
       </Routes>
     </div>

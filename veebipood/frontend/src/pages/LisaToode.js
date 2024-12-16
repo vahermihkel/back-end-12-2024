@@ -8,6 +8,7 @@ function LisaToode() {
   const activeRef = useRef(); 
   const categoryRef = useRef(); 
   const [categories, setCategories] = useState([]);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:8080/categories")
@@ -30,13 +31,18 @@ function LisaToode() {
       headers: {"Content-Type": "application/json"}
     })
       .then(res => res.json())
-      .then(() => {
-        nameRef.current.value = "";
-        priceRef.current.value = "";
-        activeRef.current.value = true;
-        stockRef.current.value = "";
-        categoryRef.current.value = "";
-      });
+      .then(json => {
+        if (json.message === undefined) {
+          nameRef.current.value = "";
+          priceRef.current.value = "";
+          activeRef.current.value = true;
+          stockRef.current.value = "";
+          categoryRef.current.value = "";
+        } else {
+          setMessage(json.message);
+        }
+      }
+    );
   }
 
   // 400 -> bad request. IntelliJ console
@@ -46,6 +52,7 @@ function LisaToode() {
   return (
     <div>
       <br />
+      <div>{message}</div>
       <TextField inputRef={nameRef} label="Nimi" variant="outlined" /><br /><br />
       <TextField inputRef={priceRef} label="Hind" variant="outlined" /><br /><br />
       <TextField inputRef={stockRef} label="Laokogus" variant="outlined" /><br /><br />

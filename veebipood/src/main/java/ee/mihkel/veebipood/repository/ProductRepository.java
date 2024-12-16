@@ -12,5 +12,14 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, String> {
 
     //@Query ....   SELECT * FROM category WHERE product.category =
-    List<Product> findByCategory_Id(Long id);
+    //List<Product> findByCategory_Id(Long id);
+
+
+    // avalehel
+    List<Product> findByActiveTrueOrderByNameAsc();
+
+    // admin lehel
+    List<Product> findByOrderByNameAsc();
+
+    List<Product> findByCategory_IdAndActiveTrueOrderByNameAsc(Long id);
 }
