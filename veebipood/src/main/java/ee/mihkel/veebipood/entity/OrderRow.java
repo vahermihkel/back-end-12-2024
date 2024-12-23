@@ -1,9 +1,6 @@
 package ee.mihkel.veebipood.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @AllArgsConstructor
@@ -12,9 +9,12 @@ import lombok.*;
 @Setter
 @Entity
 @ToString
-public class Category {
+public class OrderRow {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private int quantity;
+
+    @ManyToOne
+    private Product product;
 }

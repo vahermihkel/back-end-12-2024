@@ -12,9 +12,10 @@ import lombok.*;
 @Setter
 @Entity
 @ToString
-public class Category {
+public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String password;
 }

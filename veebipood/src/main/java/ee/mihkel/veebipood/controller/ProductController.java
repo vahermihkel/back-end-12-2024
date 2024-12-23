@@ -6,7 +6,10 @@ import ee.mihkel.veebipood.entity.Product;
 import ee.mihkel.veebipood.repository.CategoryRepository;
 import ee.mihkel.veebipood.repository.ProductRepository;
 import ee.mihkel.veebipood.service.ProductService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 //import java.util.ArrayList;
@@ -17,6 +20,7 @@ import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
+@Log4j2
 public class ProductController {
 
     @Autowired
@@ -39,15 +43,16 @@ public class ProductController {
         return productRepository.findById(productName).orElseThrow();
     }
 
-    // localhost:8080/public-products
+    // localhost:8080/public-products?page=0&size=2
     @GetMapping("public-products")
-    public List<Product> getPublicProducts() {
-        return productRepository.findByActiveTrueOrderByNameAsc();
+    public Page<Product> getPublicProducts(Pageable pageable) {
+        //log.info(pageable.getPageNumber());
+        return productRepository.findByActiveTrue(pageable);
     }
 
     @GetMapping("products-by-category/{categoryId}")
-    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-        return productRepository.findByCategory_IdAndActiveTrueOrderByNameAsc(categoryId);
+    public Page<Product> getProductsByCategory(@PathVariable Long categoryId, Pageable pageable) {
+        return productRepository.findByCategory_IdAndActiveTrueOrderByNameAsc(categoryId, pageable);
     }
 
     // localhost:8080/products
@@ -77,17 +82,21 @@ public class ProductController {
     public List<Product> addProduct(@RequestBody Product newProduct) {
         //tooted.add(newProduct);
         if (newProduct.getName() == null || newProduct.getName().isEmpty()) {
+            log.error("Wanted to add product but name was empty by user 123: {}", newProduct);
             throw new RuntimeException("Nimi on puudu");
         }
         if (newProduct.getCategory() == null || newProduct.getCategory().getId() == null || newProduct.getCategory().getId() <= 0) {
+            log.error("Wanted to add product but category was empty by user 123: {}", newProduct);
             throw new RuntimeException("Kategooria on puudu");
         }
         if (productRepository.findById(newProduct.getName()).isEmpty()) {
             newProduct.setActive(true);
             if (newProduct.getStock() < 0) {
+                log.error("Wanted to add product with negative stock, changed it to 0 by user 123: {}", newProduct);
                 newProduct.setStock(0);
             }
             productRepository.save(newProduct);
+            log.info("Product saved by user 123: {}", newProduct);
         }
         return productRepository.findByOrderByNameAsc();
     }
@@ -110,7 +119,8 @@ public class ProductController {
     @PatchMapping("change-stock")
     public List<Product> changeStock(@RequestBody Product changedProduct) {
                                             // võtan andmebaasist primaatvõtme alusel
-        Product product = productRepository.findById(changedProduct.getName()).orElseThrow();
+        Optional<Product> productOptional = productRepository.findById(changedProduct.getName());
+        Product product = productOptional.orElseThrow();
         product.setStock(changedProduct.getStock());
         productRepository.save(product);
 

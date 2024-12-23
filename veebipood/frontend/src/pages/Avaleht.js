@@ -5,12 +5,23 @@ function Avaleht() {
   // on võimalik HTMLs muudatusi teha
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [pageNumbers, setPageNumbers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState(-1);
+  const pageSize = 2;
 
   // onLoad funktsioon
   useEffect(() => {
-    fetch("http://localhost:8080/public-products")
+    fetch("http://localhost:8080/public-products?page=0&size=" + pageSize)
       .then(res => res.json())
-      .then(json => setProducts(json));
+      .then(json => {
+        setProducts(json.content);
+        const numbers = [];
+        for (let number = 1; number <= json.totalPages; number++) {
+          numbers.push(number);
+        }
+        setPageNumbers(numbers);
+      });
   }, []);
 
   useEffect(() => {
@@ -20,15 +31,60 @@ function Avaleht() {
   }, []);
 
   function productsByCategory(categoryId) {
-    fetch("http://localhost:8080/products-by-category/" + categoryId)
-      .then(res => res.json())
-      .then(json => setProducts(json));
+    setSelectedCategory(categoryId);
+    setCurrentPage(1);
+    fetch("http://localhost:8080/products-by-category/" + categoryId + "?page=0&size=" + pageSize)
+    .then(res => res.json())
+    .then(json => {
+      setProducts(json.content);
+      const numbers = [];
+      for (let number = 1; number <= json.totalPages; number++) {
+        numbers.push(number);
+      }
+      setPageNumbers(numbers);
+    });
   } 
 
   function allProducts() {
-    fetch("http://localhost:8080/products")
+    setSelectedCategory(-1);
+    setCurrentPage(1);
+    fetch("http://localhost:8080/public-products?page=0&size=" + pageSize)
+    .then(res => res.json())
+    .then(json => {
+      setProducts(json.content);
+      const numbers = [];
+      for (let number = 1; number <= json.totalPages; number++) {
+        numbers.push(number);
+      }
+      setPageNumbers(numbers);
+    });
+  }
+
+  function paginate(pageNumber) {
+    setCurrentPage(pageNumber);
+    if (selectedCategory === -1) {
+      fetch("http://localhost:8080/public-products?page=" + (pageNumber-1) +"&size=" + pageSize)
       .then(res => res.json())
-      .then(json => setProducts(json));
+      .then(json => {
+        setProducts(json.content);
+        const numbers = [];
+        for (let number = 1; number <= json.totalPages; number++) {
+          numbers.push(number);
+        }
+        setPageNumbers(numbers);
+      });
+    } else {
+      fetch("http://localhost:8080/products-by-category/" + selectedCategory + "?page=" + (pageNumber-1) +"&size=" + pageSize)
+        .then(res => res.json())
+        .then(json => {
+          setProducts(json.content);
+          const numbers = [];
+          for (let number = 1; number <= json.totalPages; number++) {
+            numbers.push(number);
+          }
+          setPageNumbers(numbers);
+        });
+    }
   }
 
   return (
@@ -46,11 +102,18 @@ function Avaleht() {
           <div>{product.category?.name}</div>
         </div>)}
 
-        {/* <button><-</button>
-        <button>1</button>
-        <button>2</button>
-        <button>-></button> */}
-        {/* Leheküljenumbrid */}
+        <div style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center"}}>
+          <nav>
+            <ul className="pagination">
+              {pageNumbers.map((number) => (
+                <li key={number} className={`page-item ${currentPage === number ? "active" : ""}`}>
+                  <span onClick={() => paginate(number)} className="page-link"> {number} </span>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
     </div>
   )
 }

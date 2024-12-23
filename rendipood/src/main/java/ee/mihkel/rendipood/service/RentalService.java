@@ -1,5 +1,6 @@
 package ee.mihkel.rendipood.service;
 
+import ee.mihkel.rendipood.dto.FilmDTO;
 import ee.mihkel.rendipood.entity.Film;
 import ee.mihkel.rendipood.entity.Rental;
 import ee.mihkel.rendipood.repository.FilmRepository;
@@ -18,8 +19,10 @@ public class RentalService {
     @Autowired
     FilmRepository filmRepository;
 
+    int bonusPoints = 0;
+
                     // Kariibi mere piraadid, Old
-    public List<Rental> startRental(List<Film> films) {
+    public Rental startRental(List<Film> films) {
         Rental rental = new Rental(); // ID generationType Identity ----> andmebaas genereerib ID
         // id --> 0
         // sum --> 0
@@ -41,8 +44,7 @@ public class RentalService {
             filmRepository.save(dbFilm); // andmebaasist läheb film salvestuma, mitte enam front-endist
         }
         dbRental.setSum(sum);
-        rentalRepository.save(dbRental);
-        return rentalRepository.findAll();
+        return rentalRepository.save(dbRental);
     }
 
     private final int PREMIUM_PRICE = 4;
@@ -71,7 +73,31 @@ public class RentalService {
         }
     }
 
-    public List<Rental> endRental(List<Film> films) {
+    public List<Rental> endRental(List<FilmDTO> films) {
+        for (FilmDTO filmDTO: films) {
+            Film film = filmRepository.findById(filmDTO.getId()).orElseThrow();
+            if (filmDTO.getActualDaysOut() > film.getDaysOut()) {
+                calculateLateFee(film, filmDTO.getActualDaysOut());
+            }
+        }
         return rentalRepository.findAll();
+    }
+
+    private void calculateLateFee(Film film, int actualDaysOut) {
+        Rental rental = film.getRental();
+
+        int lateFee = 0;
+        switch (film.getType()) {
+            case NEW -> {
+                lateFee = (actualDaysOut - film.getDaysOut()) * PREMIUM_PRICE;
+                bonusPoints += 2;
+            }
+            case REGULAR, OLD -> {
+                lateFee = (actualDaysOut - film.getDaysOut()) * BASIC_PRICE;
+                bonusPoints += 1;
+            }
+        }
+        rental.setLateFee(rental.getLateFee() + lateFee);
+        rentalRepository.save(rental);
     }
 }

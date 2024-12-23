@@ -1,5 +1,6 @@
 package ee.mihkel.rendipood.controller;
 
+import ee.mihkel.rendipood.dto.FilmDTO;
 import ee.mihkel.rendipood.entity.Film;
 import ee.mihkel.rendipood.entity.Rental;
 import ee.mihkel.rendipood.service.RentalService;
@@ -19,12 +20,12 @@ public class RentalController {
     RentalService rentalService;
 
     @PostMapping("start-rental")
-    public List<Rental> startRental(@RequestBody List<Film> films) {
+    public Rental startRental(@RequestBody List<Film> films) {
         return rentalService.startRental(films);
     }
 
     @PostMapping("end-rental") // TODO: ei saa filme panna, kuna kuhugi peab minema mitu päeva tegelikult oli
-    public List<Rental> endRental(@RequestBody List<Film> films) {
-        return rentalService.endRental(films);
+    public List<Rental> endRental(@RequestBody List<FilmDTO> filmsDTOs) {
+        return rentalService.endRental(filmsDTOs);
     }
 }
