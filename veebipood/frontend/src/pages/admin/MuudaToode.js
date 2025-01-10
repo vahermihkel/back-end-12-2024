@@ -1,6 +1,6 @@
 // rfce
 
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
@@ -17,7 +17,7 @@ function MuudaToode() {
   const fatsRef = useRef();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [message, setMessage] = useState("");
+  // const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:8080/categories")
@@ -91,7 +91,7 @@ function MuudaToode() {
       <input type="text" ref={fatsRef} defaultValue={product.nutrients?.fats} /> <br />
       <label>Active</label> <br />
       <input type="checkbox" ref={activeRef} defaultChecked={product.active} /> <br />
-      <button onClick={change}>Muuda</button>
+      <Button variant="contained" onClick={change}>Muuda</Button>
     </div>
   )
 }

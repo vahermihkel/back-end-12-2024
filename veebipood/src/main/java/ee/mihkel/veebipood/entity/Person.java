@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +19,6 @@ public class Person {
     private String firstName;
     private String lastName;
     private String password;
+    @ColumnDefault("false")
+    private boolean admin;
 }

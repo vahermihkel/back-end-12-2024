@@ -20,7 +20,9 @@ public class VeebipoodApplication {
 // N 19.12
 // E 23.12
 // R 27.12 9.00-12.15
-// E 30.12 13.00-16.15
-// N 02.01 13.00-16.15
-// N 09.01 13.00-16.15
-// R 10.01 13.00-16.15
+// E 30.12 13.00-16.15 autentimine
+// N 02.01 13.00-16.15 autentimine --> Context, kaitseme front-endis URL
+// N 09.01 13.00-16.15 autentimine --> kaitseme back-endis API endpointe
+// R 10.01 13.00-16.15 autentimine --> rollid
+
+// front-endis tõlge

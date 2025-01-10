@@ -3,7 +3,9 @@ package ee.mihkel.veebipood.service;
 import ee.mihkel.veebipood.entity.Order;
 import ee.mihkel.veebipood.entity.OrderRow;
 import ee.mihkel.veebipood.entity.Person;
+import ee.mihkel.veebipood.entity.Product;
 import ee.mihkel.veebipood.repository.OrderRepository;
+import ee.mihkel.veebipood.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ public class OrderService {
 
     @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    ProductRepository productRepository;
 
     public List<Order> addOrder(List<OrderRow> orderRows, String email) {
         Order order = new Order();
@@ -31,7 +36,8 @@ public class OrderService {
     private double calculateTotalSum(List<OrderRow> orderRows) {
         double sum = 0;
         for (OrderRow row: orderRows) {
-            sum += row.getQuantity() * row.getProduct().getPrice();
+            Product product = productRepository.findById(row.getProduct().getName()).orElseThrow();
+            sum += row.getQuantity() * product.getPrice();
         }
         return sum;
     }

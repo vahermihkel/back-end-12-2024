@@ -1,11 +1,13 @@
 import { Button } from 'react-bootstrap';
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function HaldaTooteid() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const categoryRef = useRef();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch("http://localhost:8080/products")
@@ -54,13 +56,13 @@ function HaldaTooteid() {
       <table>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Stock</th>
-            <th>Active</th>
-            <th>Nutrients</th>
-            <th>Actions</th>
+            <th>{t("product.name")}</th>
+            <th>{t("product.price")}</th>
+            <th>{t("product.category")}</th>
+            <th>{t("product.stock")}</th>
+            <th>{t("product.active")}</th>
+            <th>{t("product.nutrients")}</th>
+            <th>{t("table.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -69,7 +71,7 @@ function HaldaTooteid() {
             <td>{product.name}</td>
             <td>{product.price} €</td>
             <td>{product.category?.name}</td>
-            <td>
+            <td className="stock">
               <Button onClick={() => decreaseStock(product)} variant="danger">-</Button>
               {product.stock}
               <Button onClick={() => increaseStock(product)} variant="success">+</Button>

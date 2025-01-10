@@ -98,7 +98,7 @@ public class ProductController {
             productRepository.save(newProduct);
             log.info("Product saved by user 123: {}", newProduct);
         }
-        return productRepository.findByOrderByNameAsc();
+            return productRepository.findByOrderByNameAsc();
     }
 
     @DeleteMapping("products/{productName}")

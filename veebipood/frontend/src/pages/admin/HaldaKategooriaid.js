@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react'
- 
+import { Button as BButton } from 'react-bootstrap';
  
 // Võta siia lehele kõik kategooriad .example halda tooted + 
 // Võimalda siin lehel ühte kategooriat kustutuda + 
@@ -70,13 +70,13 @@ function HaldaKategooriaid() {
               <tr key={category.id}>
                 <td>{category.name}</td>
                 <td>
-                    <button onClick={() => deleteCategoryById(category.id)}>Kustuta</button>
+                    <BButton variant='danger' onClick={() => deleteCategoryById(category.id)}>X</BButton>
                 </td>
               </tr>)}
           </tbody>
       </table>
       <div>
-      <button onClick={() => openNewCategoryWindow()}>Lisa Uus Kategooria</button>
+      <Button variant='contained' onClick={() => openNewCategoryWindow()}>Lisa Uus Kategooria</Button>
       </div>
       <div>
         <Dialog open={openWindow} onClose={() => closeNewCategoryWindow}>

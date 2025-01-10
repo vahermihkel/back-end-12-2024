@@ -1,5 +1,7 @@
-import React from 'react'
+import { Button } from '@mui/material';
+import React, { useContext } from 'react'
 import { useEffect, useState } from 'react';
+import { CartSumContext } from '../store/CartSumContext';
 
 function Avaleht() {
   // on võimalik HTMLs muudatusi teha
@@ -9,6 +11,8 @@ function Avaleht() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(-1);
   const pageSize = 2;
+  const {addCartSum} = useContext(CartSumContext);
+  const [loading, setLoading] = useState(true);
 
   // onLoad funktsioon
   useEffect(() => {
@@ -21,13 +25,16 @@ function Avaleht() {
           numbers.push(number);
         }
         setPageNumbers(numbers);
+        setLoading(false);
       });
   }, []);
 
   useEffect(() => {
     fetch("http://localhost:8080/categories")
       .then(res => res.json())
-      .then(json => setCategories(json));
+      .then(json => {
+        setCategories(json);
+      });
   }, []);
 
   function productsByCategory(categoryId) {
@@ -87,12 +94,36 @@ function Avaleht() {
     }
   }
 
+  function addToCart(productClicked) {
+    const cartLS = JSON.parse(localStorage.getItem("cart")) || [];
+    const product = cartLS.find(cartProduct => cartProduct.product.name === productClicked.name);
+    if (product !== undefined) {
+      product.quantity++;
+    } else {
+      cartLS.push({product: productClicked, quantity: 1});
+    }
+    localStorage.setItem("cart", JSON.stringify(cartLS));
+    //setCartSum(cartSum + productClicked.price);
+    addCartSum(productClicked.price);
+  }
+
+  // 1. vaja võtta localStorage-st kõik varasemad ostukorvitooted (localstorage.getItem)
+  // 2. vaja võtta jutumärgid maha, sest storage-s on kõik stringina (JSON.parse)
+  // 3. vaja lisada toode juurde (.push)
+  // 4. vaja panna jutumärgid tagasi, sest stringina kõik (JSON.stringify)
+  // 5. vaja panna localStorage-sse tagasi kõik uuenenud tooted (localStorage.setItem)
+
+  // tegelikult võiks olla boolean isLoading, setLoading = useState
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div>
        {/* .map on tsükkel, käies läbi kõik array elemendid ja tehes
       igaühe kohta HTML lõigu */}
-      <button onClick={() => allProducts()}>Kõik tooted</button>
-      {categories.map(category => <button key={category.id} onClick={() => productsByCategory(category.id)}>{category.name}</button>)}
+      <Button variant="outlined" onClick={() => allProducts()}>Kõik tooted</Button>
+      {categories.map(category => <Button key={category.id} onClick={() => productsByCategory(category.id)}>{category.name}</Button>)}
 
       <div>{products.length} tk</div>
       {products.map(product => 
@@ -100,6 +131,7 @@ function Avaleht() {
           <div>{product.name}</div>
           <div>{product.price} €</div>
           <div>{product.category?.name}</div>
+          <Button variant='contained' onClick={() => addToCart(product)}>Lisa ostukorvi</Button>
         </div>)}
 
         <div style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center"}}>

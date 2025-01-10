@@ -1,25 +1,44 @@
 package ee.mihkel.veebipood.controller;
 
+import ee.mihkel.veebipood.dto.AuthToken;
+import ee.mihkel.veebipood.dto.EmailPassword;
+import ee.mihkel.veebipood.dto.PersonDTO;
 import ee.mihkel.veebipood.entity.Person;
 import ee.mihkel.veebipood.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class PersonController {
 
     @Autowired
     PersonService personService;
 
     @PostMapping("login")
-    public String login() {
-        return "";
+    public AuthToken login(@RequestBody EmailPassword emailPassword) {
+        return personService.login(emailPassword);
     }
 
     @PostMapping("signup")
-    public String signup(@RequestBody Person person) {
+    public AuthToken signup(@RequestBody Person person) {
         return personService.signup(person);
+    }
+
+    @GetMapping("person")
+    public Person getPerson(@RequestParam String token) {
+        return personService.getPerson(token);
+    }
+
+    @PutMapping("person")
+    public Person editPerson(@RequestBody Person person) {
+        return personService.editPerson(person);
+    }
+
+    @GetMapping("public-persons")
+    public List<PersonDTO> getPublicPersons() {
+        return personService.getPublicPersons();
     }
 }
