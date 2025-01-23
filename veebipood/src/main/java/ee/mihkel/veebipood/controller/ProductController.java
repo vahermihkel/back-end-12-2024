@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 //import java.util.ArrayList;
@@ -44,16 +45,19 @@ public class ProductController {
     }
 
     // localhost:8080/public-products?page=0&size=2
-    @GetMapping("public-products")
-    public Page<Product> getPublicProducts(Pageable pageable) {
+    @GetMapping("public-products/{categoryId}")
+    public Page<Product> getPublicProducts(@PathVariable Long categoryId,Pageable pageable) {
         //log.info(pageable.getPageNumber());
-        return productRepository.findByActiveTrue(pageable);
-    }
-
-    @GetMapping("products-by-category/{categoryId}")
-    public Page<Product> getProductsByCategory(@PathVariable Long categoryId, Pageable pageable) {
+        if (categoryId == -1) {
+            return productRepository.findByActiveTrueOrderByNameAsc(pageable);
+        }
         return productRepository.findByCategory_IdAndActiveTrueOrderByNameAsc(categoryId, pageable);
     }
+
+//    @GetMapping("products-by-category/{categoryId}")
+//    public Page<Product> getProductsByCategory(@PathVariable Long categoryId, Pageable pageable) {
+//        return productRepository.findByCategory_IdAndActiveTrueOrderByNameAsc(categoryId, pageable);
+//    }
 
     // localhost:8080/products
     @GetMapping("products")
@@ -81,29 +85,38 @@ public class ProductController {
     @PostMapping("products")
     public List<Product> addProduct(@RequestBody Product newProduct) {
         //tooted.add(newProduct);
+        String email = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         if (newProduct.getName() == null || newProduct.getName().isEmpty()) {
-            log.error("Wanted to add product but name was empty by user 123: {}", newProduct);
+            log.error("Wanted to add product but name was empty by user {}: {}", email, newProduct);
             throw new RuntimeException("Nimi on puudu");
         }
+        if (newProduct.getPrice() < 0) {
+            log.error("Wanted to add product but price was negative by user {}: {}", email, newProduct);
+            throw new RuntimeException("Hind negatiivne");
+        }
         if (newProduct.getCategory() == null || newProduct.getCategory().getId() == null || newProduct.getCategory().getId() <= 0) {
-            log.error("Wanted to add product but category was empty by user 123: {}", newProduct);
+            log.error("Wanted to add product but category was empty by user {}: {}", email, newProduct);
             throw new RuntimeException("Kategooria on puudu");
         }
         if (productRepository.findById(newProduct.getName()).isEmpty()) {
             newProduct.setActive(true);
             if (newProduct.getStock() < 0) {
-                log.error("Wanted to add product with negative stock, changed it to 0 by user 123: {}", newProduct);
+                log.error("Wanted to add product with negative stock, changed it to 0 by user {}: {}", email, newProduct);
                 newProduct.setStock(0);
             }
             productRepository.save(newProduct);
-            log.info("Product saved by user 123: {}", newProduct);
+            log.info("Product saved by user {}: {}", email, newProduct);
         }
             return productRepository.findByOrderByNameAsc();
     }
 
     @DeleteMapping("products/{productName}")
     public List<Product> deleteProduct(@PathVariable String productName) {
-        productRepository.deleteById(productName);
+        try {
+            productRepository.deleteById(productName);
+        } catch (Exception e) {
+            throw new RuntimeException("Ei saa kustutada toodet, mis on tellimuses");
+        }
         return productRepository.findByOrderByNameAsc();
     }
 
@@ -113,6 +126,15 @@ public class ProductController {
             productRepository.save(newProduct); // INSERT INTO products
         }
         return productRepository.findByOrderByNameAsc(); // SELECT * FROM products
+    }
+
+    @PatchMapping("change-active")
+    public List<Product> changeActive(@RequestParam String productName, @RequestParam boolean active) {
+        // {id: 1, active: false}
+        Product product = productRepository.findById(productName).orElseThrow(); // reference --> lazy loading
+        product.setActive(active);
+        productRepository.save(product);
+        return productRepository.findByOrderByNameAsc();
     }
 
     // Patch - ühe kindla välja muutmine
@@ -146,11 +168,11 @@ public class ProductController {
     @PatchMapping("decrease-stock")
     public List<Product> decreaseStock(@RequestParam String name) {
         Product product = productRepository.findById(name).orElseThrow();
-        if (product.getStock() > 0) {
-            product.setStock(product.getStock() - 1);
-            productRepository.save(product);
-            // TODO: Viska exception kui on 0
+        if (product.getStock() <= 0) {
+            throw new RuntimeException("Ei saa vähendada kui on kogus 0");
         }
+        product.setStock(product.getStock() - 1);
+        productRepository.save(product);
         return productRepository.findByOrderByNameAsc();
     }
 

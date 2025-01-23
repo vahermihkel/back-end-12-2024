@@ -34,10 +34,10 @@ function App() {
     console.log((new Date()).getTime());
     if (expirationDate.getTime() - 60*1000 < (new Date()).getTime()) {
       console.log("SÕNUM");
-      alert("Sind logitakse 1 minuti pärast välja!");
+      // alert("Sind logitakse 1 minuti pärast välja!");
       if (expirationDate.getTime() < (new Date()).getTime()) {
         console.log("LOGOUT")
-        logout();
+        // logout();
       }
     }
   }

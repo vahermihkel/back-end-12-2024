@@ -55,3 +55,11 @@ th, td {
 .total {
   width: 120px;
 }
+
+.active {
+  background-color: rgb(232, 243, 232);
+}
+
+.inactive {
+  background-color: rgb(242, 231, 231);
+}

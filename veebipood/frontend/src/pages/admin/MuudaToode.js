@@ -17,7 +17,7 @@ function MuudaToode() {
   const fatsRef = useRef();
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  // const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:8080/categories")
@@ -57,14 +57,33 @@ function MuudaToode() {
     fetch("http://localhost:8080/products", {
       method: "PUT",
       body: JSON.stringify(newProduct), 
-      headers: {"Content-Type": "application/json"}
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + sessionStorage.getItem("token")
+      }
     })
       .then(res => res.json())
       .then(() => navigate("/halda-tooteid"));
   }
+
+  function deleteProduct(productName) {
+    fetch("http://localhost:8080/products/" + productName, {
+      method:"DELETE", 
+      headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
+    })
+      .then(res => res.json())
+      .then(json => {
+        if (json.message && json.statusCode) {
+          setMessage(json.message);
+        } else {
+          navigate("/halda-tooteid");
+        }
+      });
+  }
   
   return (
     <div>
+      <div>{message}</div>
       <label>Name</label> <br />
       <input type="text" ref={nameRef} defaultValue={product.name} /> <br />
       <label>Price</label> <br />
@@ -92,6 +111,8 @@ function MuudaToode() {
       <label>Active</label> <br />
       <input type="checkbox" ref={activeRef} defaultChecked={product.active} /> <br />
       <Button variant="contained" onClick={change}>Muuda</Button>
+      <br /><br />
+      <button onClick={() => deleteProduct(product.name)}>Kustuta</button>
     </div>
   )
 }

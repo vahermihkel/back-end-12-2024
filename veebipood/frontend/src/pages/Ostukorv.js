@@ -39,12 +39,15 @@ function Ostukorv() {
   }
 
   function addOrder() {
-    fetch("http://localhost:8080/orders?email=" + sessionStorage.getItem("token"), {
+    fetch("http://localhost:8080/orders", {
       method: "POST", 
       body: JSON.stringify(cart),
-      headers: {"Content-Type": "application/json"}
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + sessionStorage.getItem("token")
+      }
     }).then(res => res.json())
-      .then(json => console.log(json));
+      .then(json => window.location.href = json.link);
   }
 
   function calculateCartSum() {

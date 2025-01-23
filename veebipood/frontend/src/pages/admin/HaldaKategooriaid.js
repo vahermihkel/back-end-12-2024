@@ -12,6 +12,7 @@ function HaldaKategooriaid() {
   const categoryName = useRef()
   const [categories, setCategories] = useState([])
   const [openWindow, setOpenWindow] = useState(false)
+  const [message, setMessage] = useState("");
  
   useEffect(() => {
     fetch("http://localhost:8080/categories")
@@ -20,13 +21,22 @@ function HaldaKategooriaid() {
   }, []);
  
   function deleteCategoryById(id) {
-    fetch("http://localhost:8080/categories/" + id, {method:"DELETE"})
+    fetch("http://localhost:8080/categories/" + id, {
+        method:"DELETE", 
+        headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
+      })
     .then(res => res.json())
-    .then(json => setCategories(json))
-    .catch((err) => {
-      console.log("Error:", err)
-      alert(`Error: ${err.message}`)
+    .then(json => {
+      if (json.message && json.statusCode) {
+        setMessage(json.message);
+      } else {
+        setCategories(json);
+      }
     })
+    // .catch((err) => {
+    //   console.log("Error:", err)
+    //   alert(`Error: ${err.message}`)
+    // })
   }
  
   function openNewCategoryWindow() {
@@ -45,7 +55,10 @@ function HaldaKategooriaid() {
     fetch("http://localhost:8080/categories", {
       method:"POST",
       body: JSON.stringify(addCategory),
-      headers:{"Content-Type":"application/json"}})
+      headers:{
+        "Content-Type":"application/json", 
+        "Authorization": "Bearer " + sessionStorage.getItem("token")
+      }})
     .then(res => res.json())
     .then(() => {
       categoryName.current.value = ""
@@ -59,6 +72,7 @@ function HaldaKategooriaid() {
  
   return (
     <div>
+      <div>{message}</div>
       <table>
           <thead>
               <tr>

@@ -1,25 +1,39 @@
 package ee.mihkel.veebipood.security;
 
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Log4j2
 @Component
 public class JwtFilter extends BasicAuthenticationFilter {
+
+    @Value("${auth.secret-key}")
+    private String secretKey;
 
     public JwtFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
@@ -34,8 +48,35 @@ public class JwtFilter extends BasicAuthenticationFilter {
         log.info(response.getStatus());
 
         // if alla <--- Tokeni valideerimine
-        Authentication authentication = new UsernamePasswordAuthenticationToken("UNIKAALSUSE_TUNNUS", "NIMI", new ArrayList<>());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.replace("Bearer ", "");
+            SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+
+            try {
+                Claims claims = Jwts.parser()
+                        .verifyWith(key)
+                        .build()
+                        .parseSignedClaims(token)
+                        .getPayload();
+
+                String id = claims.get("email").toString();
+                String admin = claims.get("admin").toString();
+                log.info(token);
+
+                List<GrantedAuthority> authorities = new ArrayList<>();
+                if (admin.equals("true")) {
+                    GrantedAuthority authority = new SimpleGrantedAuthority("admin");
+                    authorities.add(authority);
+                }
+
+                Authentication authentication = new UsernamePasswordAuthenticationToken(id, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (JwtException | IllegalArgumentException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
 
         super.doFilterInternal(request, response, filterChain);
     }

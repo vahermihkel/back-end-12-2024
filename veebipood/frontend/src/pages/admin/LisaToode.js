@@ -28,7 +28,10 @@ function LisaToode() {
     fetch("http://localhost:8080/products", {
       method: "POST", 
       body: JSON.stringify(newProduct), 
-      headers: {"Content-Type": "application/json"}
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + sessionStorage.getItem("token")
+      }
     })
       .then(res => res.json())
       .then(json => {

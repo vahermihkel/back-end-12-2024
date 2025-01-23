@@ -28,8 +28,8 @@ public class PersonController {
     }
 
     @GetMapping("person")
-    public Person getPerson(@RequestParam String token) {
-        return personService.getPerson(token);
+    public Person getPerson() {
+        return personService.getPerson();
     }
 
     @PutMapping("person")

@@ -29,7 +29,11 @@ public class CategoryController {
 
     @DeleteMapping("categories/{id}")
     public List<Category> deleteCategory(@PathVariable Long id) {
-        categoryRepository.deleteById(id);
+        try {
+            categoryRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Ei saa kustutada kategooriat, mille sees on tooted");
+        }
         return categoryRepository.findAll();
     }
 }

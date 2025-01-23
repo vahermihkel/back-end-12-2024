@@ -1,13 +1,15 @@
 import { Button, TextField } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 
 function Profile() {
   const [person, setPerson] = useState({});
   const [message, setMessage] = useState("");
+  const token = "Bearer " + sessionStorage.getItem("token");
 
-  useEffect(() => {
-    fetch("http://localhost:8080/person?token=" + sessionStorage.getItem("token"))
+  const getPerson = useCallback(() => {
+    fetch("http://localhost:8080/person", {
+      headers: {"Authorization": token}})
       .then(res => res.json())
       .then(json => {
         if (json.message && json.statusCode) {
@@ -16,14 +18,19 @@ function Profile() {
           setPerson(json);
         }
       })
-  }, []);
+  }, [token])
+
+  useEffect(() => {
+   getPerson();
+  }, [getPerson]);
 
   const updateProfile = () => {
     fetch("http://localhost:8080/person", {
       method: "PUT",
       body: JSON.stringify(person),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": token
       }
     }).then(res => res.json())
       .then(json => {

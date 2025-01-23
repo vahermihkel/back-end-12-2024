@@ -15,7 +15,9 @@ export const AuthContextProvider = ({children}) => {
       setLoggedIn(false);
       return;
     }
-    fetch("http://localhost:8080/person?token=" + sessionStorage.getItem("token"))
+    fetch("http://localhost:8080/person", {
+      headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
+    })
       .then(res => res.json())
       .then(json => {
         if (json.message === undefined && json.statusCode === undefined) {

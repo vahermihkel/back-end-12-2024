@@ -9,14 +9,22 @@ function Avaleht() {
   const [categories, setCategories] = useState([]);
   const [pageNumbers, setPageNumbers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState(-1);
-  const pageSize = 2;
+  const [pageSize, setPageSize] = useState(2);
   const {addCartSum} = useContext(CartSumContext);
   const [loading, setLoading] = useState(true);
 
-  // onLoad funktsioon
+  const [selectedCategory, setSelectedCategory] = useState(-1);
+
   useEffect(() => {
-    fetch("http://localhost:8080/public-products?page=0&size=" + pageSize)
+    fetch("http://localhost:8080/categories")
+      .then(res => res.json())
+      .then(json => {
+        setCategories(json);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/public-products/" + selectedCategory + "?page=0&size=" + pageSize)
       .then(res => res.json())
       .then(json => {
         setProducts(json.content);
@@ -27,71 +35,28 @@ function Avaleht() {
         setPageNumbers(numbers);
         setLoading(false);
       });
-  }, []);
-
-  useEffect(() => {
-    fetch("http://localhost:8080/categories")
-      .then(res => res.json())
-      .then(json => {
-        setCategories(json);
-      });
-  }, []);
+  }, [pageSize, selectedCategory]);
 
   function productsByCategory(categoryId) {
     setSelectedCategory(categoryId);
     setCurrentPage(1);
-    fetch("http://localhost:8080/products-by-category/" + categoryId + "?page=0&size=" + pageSize)
-    .then(res => res.json())
-    .then(json => {
-      setProducts(json.content);
-      const numbers = [];
-      for (let number = 1; number <= json.totalPages; number++) {
-        numbers.push(number);
-      }
-      setPageNumbers(numbers);
-    });
   } 
 
   function allProducts() {
     setSelectedCategory(-1);
     setCurrentPage(1);
-    fetch("http://localhost:8080/public-products?page=0&size=" + pageSize)
-    .then(res => res.json())
-    .then(json => {
-      setProducts(json.content);
-      const numbers = [];
-      for (let number = 1; number <= json.totalPages; number++) {
-        numbers.push(number);
-      }
-      setPageNumbers(numbers);
-    });
   }
 
   function paginate(pageNumber) {
     setCurrentPage(pageNumber);
-    if (selectedCategory === -1) {
-      fetch("http://localhost:8080/public-products?page=" + (pageNumber-1) +"&size=" + pageSize)
+      fetch("http://localhost:8080/public-products/" + selectedCategory + "?page=" + (pageNumber-1) +"&size=" + pageSize)
       .then(res => res.json())
-      .then(json => {
-        setProducts(json.content);
-        const numbers = [];
-        for (let number = 1; number <= json.totalPages; number++) {
-          numbers.push(number);
-        }
-        setPageNumbers(numbers);
-      });
-    } else {
-      fetch("http://localhost:8080/products-by-category/" + selectedCategory + "?page=" + (pageNumber-1) +"&size=" + pageSize)
-        .then(res => res.json())
-        .then(json => {
-          setProducts(json.content);
-          const numbers = [];
-          for (let number = 1; number <= json.totalPages; number++) {
-            numbers.push(number);
-          }
-          setPageNumbers(numbers);
-        });
-    }
+      .then(json => setProducts(json.content));
+  }
+
+  function changePageSize(newPageSize) {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
   }
 
   function addToCart(productClicked) {
@@ -103,27 +68,28 @@ function Avaleht() {
       cartLS.push({product: productClicked, quantity: 1});
     }
     localStorage.setItem("cart", JSON.stringify(cartLS));
-    //setCartSum(cartSum + productClicked.price);
     addCartSum(productClicked.price);
   }
 
-  // 1. vaja võtta localStorage-st kõik varasemad ostukorvitooted (localstorage.getItem)
-  // 2. vaja võtta jutumärgid maha, sest storage-s on kõik stringina (JSON.parse)
-  // 3. vaja lisada toode juurde (.push)
-  // 4. vaja panna jutumärgid tagasi, sest stringina kõik (JSON.stringify)
-  // 5. vaja panna localStorage-sse tagasi kõik uuenenud tooted (localStorage.setItem)
-
-  // tegelikult võiks olla boolean isLoading, setLoading = useState
   if (loading) {
     return <div>Loading...</div>
   }
 
   return (
     <div>
-       {/* .map on tsükkel, käies läbi kõik array elemendid ja tehes
-      igaühe kohta HTML lõigu */}
+      <div>Kuva korraga:</div>
+      <button className={pageSize === 2 ? "active" : undefined} onClick={() => changePageSize(2)}>2</button>
+      <button className={pageSize === 3 ? "active" : undefined} onClick={() => changePageSize(3)}>3</button>
+      <button className={pageSize === 4 ? "active" : undefined} onClick={() => changePageSize(4)}>4</button>
+      <br /><br />
       <Button variant="outlined" onClick={() => allProducts()}>Kõik tooted</Button>
-      {categories.map(category => <Button key={category.id} onClick={() => productsByCategory(category.id)}>{category.name}</Button>)}
+      {categories.map(category => 
+        <Button 
+          key={category.id} 
+          variant={selectedCategory === category.id ? "contained" : "outlined"}
+          onClick={() => productsByCategory(category.id)}>
+            {category.name}
+        </Button>)}
 
       <div>{products.length} tk</div>
       {products.map(product => 

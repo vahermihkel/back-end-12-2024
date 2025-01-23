@@ -10,6 +10,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -21,6 +23,9 @@ public class PersonService {
 
     @Autowired
     PersonRepository personRepository;
+
+    @Value("${auth.secret-key}")
+    private String secretKey;
 
     @Autowired
     ModelMapper modelMapper;
@@ -76,11 +81,12 @@ public class PersonService {
     }
 
     private AuthToken generateToken(Person person) {
-        Date expiration = new Date((new Date()).getTime() + 3 * 60 * 1000);
-        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode("nz85wGYIqsd0JK23hhg5iYhEM9dLI2CAlCegPyx5XQs="));
+        Date expiration = new Date((new Date()).getTime() + 3 * 60 * 60 * 1000);
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
 
         Map<String, String> claims = new HashMap<>();
         claims.put("email", person.getEmail());
+        claims.put("admin", String.valueOf(person.isAdmin()));
 
         String token = Jwts.builder()
                 .expiration(expiration)
@@ -94,15 +100,8 @@ public class PersonService {
         return authToken;
     }
 
-    public Person getPerson(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode("nz85wGYIqsd0JK23hhg5iYhEM9dLI2CAlCegPyx5XQs="));
-
-        String id = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("email").toString();
+    public Person getPerson() {
+        String id = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         return personRepository.findById(id).orElseThrow();
     }
 
