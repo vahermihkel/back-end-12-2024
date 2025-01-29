@@ -4,6 +4,7 @@ import ee.mihkel.veebipood.dto.AuthToken;
 import ee.mihkel.veebipood.dto.EmailPassword;
 import ee.mihkel.veebipood.dto.PersonDTO;
 import ee.mihkel.veebipood.entity.Person;
+import ee.mihkel.veebipood.service.EmailService;
 import ee.mihkel.veebipood.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,15 @@ public class PersonController {
 
     @Autowired
     PersonService personService;
+
+    @Autowired
+    EmailService emailService;
+
+    @GetMapping("email")
+    public String sendEmail(@RequestParam String to, String subject, String body) {
+        emailService.sendEmail(to, subject, body);
+        return "Õnnestus";
+    }
 
     @PostMapping("login")
     public AuthToken login(@RequestBody EmailPassword emailPassword) {

@@ -16,7 +16,7 @@ function Login() {
       "password": passwordRef.current.value
     }
 
-    fetch("http://localhost:8080/login", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/login", {
       "method": "POST",
       "body": JSON.stringify(payload),
       "headers": {

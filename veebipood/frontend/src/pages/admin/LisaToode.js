@@ -11,7 +11,7 @@ function LisaToode() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/categories")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
       .then(res => res.json())
       .then(json => setCategories(json));
   }, []);
@@ -25,7 +25,7 @@ function LisaToode() {
       "category": {"id": categoryRef.current.value}
   }
 
-    fetch("http://localhost:8080/products", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/products", {
       method: "POST", 
       body: JSON.stringify(newProduct), 
       headers: {

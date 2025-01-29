@@ -12,19 +12,19 @@ function HaldaTooteid() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/products")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/products")
       .then(res => res.json())
       .then(json => setProducts(json));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8080/categories")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
       .then(res => res.json())
       .then(json => setCategories(json));
   }, []);
 
   function updateProductCategory(productName) {
-    fetch("http://localhost:8080/product-category?productName=" + 
+    fetch(process.env.REACT_APP_BACK_END_URL + "/product-category?productName=" + 
         productName + "&categoryId=" + categoryRef.current.value, 
         {
           method: "PATCH",
@@ -35,7 +35,7 @@ function HaldaTooteid() {
   }
 
   function decreaseStock(product) {
-    fetch("http://localhost:8080/decrease-stock?name=" + product.name, {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/decrease-stock?name=" + product.name, {
       method: "PATCH",
       headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
     })
@@ -51,7 +51,7 @@ function HaldaTooteid() {
   }
 
   function increaseStock(product) {
-    fetch("http://localhost:8080/increase-stock?name=" + product.name, {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/increase-stock?name=" + product.name, {
       method: "PATCH",
       headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
     })
@@ -61,7 +61,7 @@ function HaldaTooteid() {
 
   function changeProductActive(product) {
     const newActive = !product.active;
-    fetch("http://localhost:8080/change-active?productName=" + product.name + "&active=" + newActive, {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/change-active?productName=" + product.name + "&active=" + newActive, {
       method: "PATCH",
       headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
     })

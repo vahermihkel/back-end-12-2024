@@ -29,8 +29,9 @@ public class VeebipoodApplication {
 //13. T 14.01 rollid, Swagger, RestTemplate -> tarnija API
 //14. R 17.01 RestTemplate -> pakiautomaadid, makse API
 //15. K 22.01 Wolt töö, Docker, CRON, shell-script, profiilid
-//16. R 24.01
-//17. T 28.01
+//16. R 24.01 email
+//17. T 28.01 Hosting. Back-end pärisserverisse (Heroku), Front-end pärisserverisse.
+// Cache
 //18. N 20.02 lõpuprojekti esitlemine
 
 // front-endis tõlge

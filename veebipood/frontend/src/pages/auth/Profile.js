@@ -8,7 +8,7 @@ function Profile() {
   const token = "Bearer " + sessionStorage.getItem("token");
 
   const getPerson = useCallback(() => {
-    fetch("http://localhost:8080/person", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/person", {
       headers: {"Authorization": token}})
       .then(res => res.json())
       .then(json => {
@@ -25,7 +25,7 @@ function Profile() {
   }, [getPerson]);
 
   const updateProfile = () => {
-    fetch("http://localhost:8080/person", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/person", {
       method: "PUT",
       body: JSON.stringify(person),
       headers: {

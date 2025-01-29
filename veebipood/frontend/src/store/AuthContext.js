@@ -15,7 +15,7 @@ export const AuthContextProvider = ({children}) => {
       setLoggedIn(false);
       return;
     }
-    fetch("http://localhost:8080/person", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/person", {
       headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
     })
       .then(res => res.json())

@@ -15,13 +15,13 @@ function HaldaKategooriaid() {
   const [message, setMessage] = useState("");
  
   useEffect(() => {
-    fetch("http://localhost:8080/categories")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
     .then(res => res.json())
     .then(json => setCategories(json))
   }, []);
  
   function deleteCategoryById(id) {
-    fetch("http://localhost:8080/categories/" + id, {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories/" + id, {
         method:"DELETE", 
         headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
       })
@@ -52,7 +52,7 @@ function HaldaKategooriaid() {
       "name": categoryName.current.value
     }
  
-    fetch("http://localhost:8080/categories", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories", {
       method:"POST",
       body: JSON.stringify(addCategory),
       headers:{
@@ -62,7 +62,7 @@ function HaldaKategooriaid() {
     .then(res => res.json())
     .then(() => {
       categoryName.current.value = ""
-        fetch("http://localhost:8080/categories")
+        fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
         .then(res => res.json())
         .then(json => setCategories(json))
     })  

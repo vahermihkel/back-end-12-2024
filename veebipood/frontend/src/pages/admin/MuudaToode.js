@@ -20,13 +20,13 @@ function MuudaToode() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/categories")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
       .then(res => res.json())
       .then(json => setCategories(json));
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8080/product/" + name)
+    fetch(process.env.REACT_APP_BACK_END_URL + "/product/" + name)
       .then(res => res.json())
       .then(json => setProduct(json));
   }, [name]); // <--- väline muutuja, kui see muutub, läheb uuesti useEffecti sisu tegema
@@ -54,7 +54,7 @@ function MuudaToode() {
         }
     }
 
-    fetch("http://localhost:8080/products", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/products", {
       method: "PUT",
       body: JSON.stringify(newProduct), 
       headers: {
@@ -67,7 +67,7 @@ function MuudaToode() {
   }
 
   function deleteProduct(productName) {
-    fetch("http://localhost:8080/products/" + productName, {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/products/" + productName, {
       method:"DELETE", 
       headers: {"Authorization": "Bearer " + sessionStorage.getItem("token")}
     })

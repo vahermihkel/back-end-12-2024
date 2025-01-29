@@ -19,7 +19,7 @@ import { Spinner } from 'react-bootstrap';
 // has been blocked by CORS policy --> back-end ei lase ligi
 
 function App() {
-  const {loggedIn, admin, logout} = useContext(AuthContext);
+  const {loggedIn, admin} = useContext(AuthContext);
 
   logoutCheck(); // <-- tuleb muuta
 

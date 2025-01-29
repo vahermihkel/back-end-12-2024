@@ -29,6 +29,7 @@ public class SecurityConfig {
 //                .anyRequest().permitAll()));
 //                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/email").permitAll()
                         .requestMatchers(HttpMethod.GET, "/public-products/**").permitAll()
 //                        .requestMatchers(HttpMethod.GET, "/products-by-category/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categories").permitAll()

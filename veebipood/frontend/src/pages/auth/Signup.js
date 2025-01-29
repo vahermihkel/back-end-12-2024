@@ -27,7 +27,7 @@ function Signup() {
       "lastName": lastNameRef.current.value,
       "password": passwordRef.current.value
     }
-    fetch("http://localhost:8080/signup", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/signup", {
       method: "POST",
       body: JSON.stringify(newPerson),
       headers:{"Content-Type":"application/json"}})

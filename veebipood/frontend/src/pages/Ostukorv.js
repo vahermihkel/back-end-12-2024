@@ -39,7 +39,7 @@ function Ostukorv() {
   }
 
   function addOrder() {
-    fetch("http://localhost:8080/orders", {
+    fetch(process.env.REACT_APP_BACK_END_URL + "/orders", {
       method: "POST", 
       body: JSON.stringify(cart),
       headers: {

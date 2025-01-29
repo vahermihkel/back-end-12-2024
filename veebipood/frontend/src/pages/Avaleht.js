@@ -16,7 +16,7 @@ function Avaleht() {
   const [selectedCategory, setSelectedCategory] = useState(-1);
 
   useEffect(() => {
-    fetch("http://localhost:8080/categories")
+    fetch(process.env.REACT_APP_BACK_END_URL + "/categories")
       .then(res => res.json())
       .then(json => {
         setCategories(json);
@@ -24,7 +24,7 @@ function Avaleht() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:8080/public-products/" + selectedCategory + "?page=0&size=" + pageSize)
+    fetch(process.env.REACT_APP_BACK_END_URL + "/public-products/" + selectedCategory + "?page=0&size=" + pageSize)
       .then(res => res.json())
       .then(json => {
         setProducts(json.content);
@@ -49,7 +49,7 @@ function Avaleht() {
 
   function paginate(pageNumber) {
     setCurrentPage(pageNumber);
-      fetch("http://localhost:8080/public-products/" + selectedCategory + "?page=" + (pageNumber-1) +"&size=" + pageSize)
+      fetch(process.env.REACT_APP_BACK_END_URL + "/public-products/" + selectedCategory + "?page=" + (pageNumber-1) +"&size=" + pageSize)
       .then(res => res.json())
       .then(json => setProducts(json.content));
   }
